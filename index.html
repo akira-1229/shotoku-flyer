@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>〇〇学校 学校紹介</title>
+<meta name="description" content="〇〇学校の学校紹介ページです。パンフレットのQRコードからご覧いただけます。">
+
+<!--
+  ===============================================
+  【差し替えガイド】
+  1. <title>と<meta name="description">の「〇〇学校」を正式名称に変更
+  2. 「学校紹介」「紹介文」などのテキストを書き換え
+  3. images フォルダに写真を入れて、img タグの src を書き換え
+     （写真を増減したいときは <img> の行をコピー／削除するだけでOK）
+  4. 動画を追加する準備ができたら、下の「紹介動画」セクションの
+     コメント（<!-- と --＞）を外して、YOUTUBE_VIDEO_ID を書き換える
+  詳しい手順は README.md を見てください。
+  ===============================================
+-->
+
+<style>
+  :root {
+    --color-bg: #faf8f5;
+    --color-surface: #ffffff;
+    --color-text: #2b2b2b;
+    --color-text-muted: #6b6b6b;
+    --color-accent: #2f6f4f;
+    --color-accent-dark: #1f4d36;
+    --radius: 14px;
+    --max-width: 860px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.7;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--color-accent-dark), var(--color-accent));
+    color: #fff;
+    padding: 48px 20px 40px;
+    text-align: center;
+  }
+
+  header .eyebrow {
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    opacity: 0.85;
+    margin-bottom: 8px;
+  }
+
+  header h1 {
+    margin: 0 0 12px;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+
+  header p {
+    margin: 0;
+    font-size: 1rem;
+    opacity: 0.92;
+  }
+
+  main {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+
+  section {
+    margin-bottom: 40px;
+  }
+
+  section h2 {
+    font-size: 1.2rem;
+    margin: 0 0 16px;
+    padding-left: 12px;
+    border-left: 5px solid var(--color-accent);
+  }
+
+  .video-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 */
+    background: #000;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  }
+
+  .video-wrapper iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: 0;
+  }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .gallery img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    display: block;
+    background: #e5e0d8;
+  }
+
+  @media (min-width: 600px) {
+    .gallery { grid-template-columns: repeat(3, 1fr); }
+    .gallery img { height: 190px; }
+  }
+
+  .info-card {
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+
+  .info-card p { margin: 6px 0; color: var(--color-text-muted); }
+  .info-card strong { color: var(--color-text); }
+
+  footer {
+    text-align: center;
+    padding: 24px 20px 40px;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">SCHOOL INTRODUCTION</div>
+  <h1>〇〇学校</h1>
+  <p>パンフレットのQRコードからお越しいただき、ありがとうございます。</p>
+</header>
+
+<main>
+
+  <section>
+    <h2>写真で見る学校生活</h2>
+    <div class="gallery">
+      <!-- images フォルダに写真を追加し、src を書き換えてください。行を追加・削除すれば枚数を調整できます -->
+      <img src="images/photo1.jpg" alt="学校の様子1">
+      <img src="images/photo2.jpg" alt="学校の様子2">
+      <img src="images/photo3.jpg" alt="学校の様子3">
+      <img src="images/photo4.jpg" alt="学校の様子4">
+    </div>
+  </section>
+
+  <!--
+    ▼▼ 動画の準備ができたら、この2行（開始・終了コメント）を削除して有効化してください ▼▼
+
+  <section>
+    <h2>紹介動画</h2>
+    <div class="video-wrapper">
+      ここにYouTubeの動画IDを入れます。
+      例）動画URLが https://www.youtube.com/watch?v=ABC123xyz なら
+      埋め込みURLは https://www.youtube.com/embed/ABC123xyz になります。
+      <iframe
+        src="https://www.youtube.com/embed/YOUTUBE_VIDEO_ID"
+        title="学校紹介動画"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+      </iframe>
+    </div>
+  </section>
+
+  ▲▲ ここまでがコメントアウトされた動画セクションです ▲▲
+  -->
+
+  <section>
+    <h2>学校について</h2>
+    <div class="info-card">
+      <p><strong>〇〇学校</strong></p>
+      <p>ここに学校の紹介文を書きます。教育方針や特色などを2〜3行でまとめると読みやすいです。</p>
+      <p>所在地：〇〇県〇〇市〇〇 1-2-3</p>
+      <p>お問い合わせ：000-0000-0000</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  &copy; <span id="year"></span> 〇〇学校
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
