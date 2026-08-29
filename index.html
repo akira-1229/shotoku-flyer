@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>聖徳自動車学園 紹介</title>
 <meta name="description" content="聖徳自動車学園の紹介ページです。パンフレットのQRコードからご覧いただけます。">
-
 <!--
   ===============================================
   【差し替えガイド】
@@ -18,7 +17,6 @@
   詳しい手順は README.md を見てください。
   ===============================================
 -->
-
 <style>
   :root {
     --color-bg: #faf8f5;
@@ -30,9 +28,7 @@
     --radius: 14px;
     --max-width: 860px;
   }
-
   * { box-sizing: border-box; }
-
   body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", sans-serif;
@@ -42,7 +38,6 @@
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
-
   header {
   background:
     linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
@@ -51,43 +46,36 @@
   padding: 70px 20px 60px;
   text-align: center;
 }
-
   header .eyebrow {
     font-size: 0.85rem;
     letter-spacing: 0.15em;
     opacity: 0.85;
     margin-bottom: 8px;
   }
-
   header h1 {
     margin: 0 0 12px;
     font-size: 1.8rem;
     font-weight: 700;
   }
-
   header p {
     margin: 0;
     font-size: 1rem;
     opacity: 0.92;
   }
-
   main {
     max-width: var(--max-width);
     margin: 0 auto;
     padding: 32px 20px 60px;
   }
-
   section {
     margin-bottom: 40px;
   }
-
   section h2 {
     font-size: 1.2rem;
     margin: 0 0 16px;
     padding-left: 12px;
     border-left: 5px solid var(--color-accent);
   }
-
   .video-wrapper {
     position: relative;
     width: 100%;
@@ -97,99 +85,93 @@
     overflow: hidden;
     box-shadow: 0 6px 18px rgba(0,0,0,0.12);
   }
-
   .video-wrapper iframe {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
     border: 0;
   }
-
   .gallery {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 12px;
   }
-
   .gallery img {
     width: 100%;
-    height: 160px;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
     border-radius: var(--radius);
     display: block;
     background: #e5e0d8;
+    cursor: pointer;
   }
-
-  @media (min-width: 600px) {
+  .gallery figure {
+    margin: 0;
+    min-width: 0;
+  }
+  .gallery figcaption {
+    margin-top: 6px;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+    line-height: 1.4;
+  }
+  @media (min-width: 480px) {
+    .gallery { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 700px) {
     .gallery { grid-template-columns: repeat(3, 1fr); }
-    .gallery img { height: 190px; }
   }
-
   .info-card {
     background: var(--color-surface);
     border-radius: var(--radius);
     padding: 20px 22px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.06);
   }
-
   .info-card p { margin: 6px 0; color: var(--color-text-muted); }
   .info-card strong { color: var(--color-text); }
-
   footer {
     text-align: center;
     padding: 24px 20px 40px;
     color: var(--color-text-muted);
     font-size: 0.85rem;
   }
-.gallery img {
-  cursor: pointer;
-}
-
-.lightbox-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.lightbox-overlay.active {
-  display: flex;
-}
-
-.lightbox-overlay img {
-  max-width: 100%;
-  max-height: 100%;
-  border-radius: 8px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-}
-
-.lightbox-close {
-  position: absolute;
-  top: 16px;
-  right: 20px;
-  color: #fff;
-  font-size: 32px;
-  cursor: pointer;
-  line-height: 1;
-}
-
-  
+  .lightbox-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .lightbox-overlay.active {
+    display: flex;
+  }
+  .lightbox-overlay img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  .lightbox-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    color: #fff;
+    font-size: 32px;
+    cursor: pointer;
+    line-height: 1;
+  }
 </style>
 </head>
 <body>
-
 <header>
   <div class="eyebrow">SCHOOL INTRODUCTION</div>
   <h1>聖徳自動車学園</h1>
   <p>パンフレットのQRコードからお越しいただき、ありがとうございます。</p>
 </header>
-
 <main>
-
   <section>
     <h2>写真で見る学園生活</h2>
     <div class="gallery">
@@ -223,10 +205,8 @@
   </figure>
 </div>
   </section>
-
   <!--
     ▼▼ 動画の準備ができたら、この2行（開始・終了コメント）を削除して有効化してください ▼▼
-
   <section>
     <h2>紹介動画</h2>
     <div class="video-wrapper">
@@ -241,10 +221,8 @@
       </iframe>
     </div>
   </section>
-
   ▲▲ ここまでがコメントアウトされた動画セクションです ▲▲
   -->
-
   <section>
     <h2>学校について</h2>
     <div class="info-card">
@@ -254,24 +232,19 @@
       <p>お問い合わせ：058-387-4171</p>
     </div>
   </section>
-
 </main>
-
 <footer>
   &copy; <span id="year"></span> 聖徳自動車学園
 </footer>
-
   <div class="lightbox-overlay" id="lightbox">
   <span class="lightbox-close" id="lightboxClose">&times;</span>
   <img id="lightboxImg" src="" alt="">
 </div>
-
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
   const galleryImgs = document.querySelectorAll('.gallery img');
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightboxImg');
-
 galleryImgs.forEach(img => {
   img.addEventListener('click', () => {
     lightboxImg.src = img.src;
@@ -279,14 +252,10 @@ galleryImgs.forEach(img => {
     lightbox.classList.add('active');
   });
 });
-
 lightbox.addEventListener('click', () => {
   lightbox.classList.remove('active');
   lightboxImg.src = '';
 });
-
-  
 </script>
-
 </body>
 </html>
