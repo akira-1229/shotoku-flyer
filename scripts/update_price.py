@@ -21,7 +21,7 @@ SOURCE_URL = "https://www.shotoku-ds.net/guidance/price.html"
 OUTPUT_PATH = Path(__file__).resolve().parent.parent / "price-data.json"
 
 # 全角・半角どちらの数字にもマッチ（価格らしい表かどうかの簡易判定に使う）
-DIGIT_RE = re.compile(r"[0-9\uFF10-\uFF19]")
+DIGIT_RE = re.compile(r"[0-9０-９]")
 
 
 def looks_like_price_table(rows: list[list[str]]) -> bool:
@@ -33,8 +33,10 @@ def looks_like_price_table(rows: list[list[str]]) -> bool:
     return False
 
 
-def extract_tables(html: str):
-    soup = BeautifulSoup(html, "lxml")
+def extract_tables(html_bytes: bytes):
+    # resp.text ではなく生バイト列を渡し、BeautifulSoup自身に文字コードを
+    # 判定させる（requestsのヘッダーベースの文字コード判定は誤検出しやすいため）。
+    soup = BeautifulSoup(html_bytes, "lxml")
 
     all_tables = soup.find_all("table")
     print(f"[INFO] ページ内の <table> 要素数: {len(all_tables)}", file=sys.stderr)
@@ -108,7 +110,7 @@ def main():
         print(f"[ERROR] 公式サイトの取得に失敗しました: {e}", file=sys.stderr)
         sys.exit(1)
 
-    tables = extract_tables(resp.text)
+    tables = extract_tables(resp.content)
 
     # 安全チェック：1個も取れていない場合のみ中止（サイトの完全な構造変化などを想定）。
     MIN_TABLES = 1
