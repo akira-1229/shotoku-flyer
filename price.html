@@ -1,305 +1,203 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>料金・コース案内｜聖徳自動車学園</title>
-<meta name="description" content="聖徳自動車学園の教習料金・コース案内です。">
+#!/usr/bin/env python3
+"""
+公式サイト（聖徳自動車学園）の料金ページを取得し、
+表(<table>)の中身を price-data.json に書き出すスクリプト。
 
-<!--
-  【差し替えガイド】
-  1. この料金表は price-data.json を自動で読み込んで表示しています。
-     price-data.json は GitHub Actions（.github/workflows/update-price.yml）が
-     毎週月曜に公式サイトを取得して自動更新するので、手動で書き換える必要はありません。
-  2. 今すぐ更新したい場合は、GitHubの「Actions」タブ →
-     「料金データの自動更新」→「Run workflow」ボタンで今すぐ実行できます。
-  3. 公式サイト: https://www.shotoku-ds.net/guidance/price.html
--->
+GitHub Actions から定期的に実行される想定。
+公式サイトの構造が変わって表がうまく取れなかった場合は、
+既存の price-data.json を壊さないよう、何もせずエラー終了する。
+"""
 
-<style>
-  :root {
-    --color-bg: #faf8f5;
-    --color-surface: #ffffff;
-    --color-text: #2b2b2b;
-    --color-text-muted: #6b6b6b;
-    --color-accent: #2f6f4f;
-    --color-accent-dark: #1f4d36;
-    --radius: 14px;
-    --max-width: 860px;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", sans-serif;
-    background: var(--color-bg);
-    color: var(--color-text);
-    line-height: 1.7;
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-  }
-  header {
-    background:
-      linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
-      url('images/header.JPG') center/cover no-repeat;
-    color: #fff;
-    padding: 56px 20px 46px;
-    text-align: center;
-  }
-  header .eyebrow {
-    font-size: 0.85rem;
-    letter-spacing: 0.15em;
-    opacity: 0.85;
-    margin-bottom: 8px;
-  }
-  header h1 {
-    margin: 0;
-    font-size: 1.6rem;
-    font-weight: 700;
-  }
-  .back-link {
-    display: inline-block;
-    margin-top: 16px;
-    color: #fff;
-    opacity: 0.9;
-    font-size: 0.9rem;
-    text-decoration: none;
-    border-bottom: 1px solid rgba(255,255,255,0.6);
-  }
-  main {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 32px 20px 60px;
-  }
-  section {
-    margin-bottom: 36px;
-  }
-  section h2 {
-    font-size: 1.15rem;
-    margin: 0 0 14px;
-    padding-left: 12px;
-    border-left: 5px solid var(--color-accent);
-  }
-  .info-card {
-    background: var(--color-surface);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-    margin-bottom: 20px;
-  }
-  .info-card p { margin: 6px 0; color: var(--color-text-muted); }
-  .info-card a { color: var(--color-accent-dark); font-weight: 600; }
+import json
+import re
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
 
-  .table-wrapper {
-    overflow-x: auto;
-    background: var(--color-surface);
-    border-radius: var(--radius);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-    margin-bottom: 18px;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 860px;
-  }
-  caption {
-    text-align: left;
-    padding: 12px 14px 4px;
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: var(--color-text);
-  }
-  th, td {
-    padding: 10px 14px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-    border-right: 1px solid #eee;
-    font-size: 0.88rem;
-    white-space: nowrap;
-  }
-  th:last-child, td:last-child {
-    border-right: none;
-  }
-  th:first-child, td:first-child {
-    white-space: normal;
-    overflow-wrap: break-word;
-    width: 170px;
-    min-width: 170px;
-    font-size: 0.78rem;
-    line-height: 1.35;
-    position: sticky;
-    left: 0;
-    z-index: 1;
-  }
-  td:first-child {
-    background: var(--color-surface);
-  }
-  th:first-child {
-    z-index: 2;
-  }
-  th {
-    background: var(--color-accent);
-    color: #fff;
-    font-weight: 600;
-    border-right-color: rgba(255,255,255,0.25);
-  }
-  tr:last-child td { border-bottom: none; }
+import requests
+from bs4 import BeautifulSoup
 
-  .note {
-    font-size: 0.82rem;
-    color: var(--color-text-muted);
-    margin-top: 10px;
-  }
+SOURCE_URL = "https://www.shotoku-ds.net/guidance/price.html"
+OUTPUT_PATH = Path(__file__).resolve().parent.parent / "price-data.json"
 
-  .restriction-note {
-    background: #fff4e5;
-    border: 1px solid #e8951a;
-    color: #7a4b00;
-    border-radius: var(--radius);
-    padding: 12px 16px;
-    font-size: 0.82rem;
-    margin-bottom: 18px;
-  }
+# 全角・半角どちらの数字にもマッチ（価格らしい表かどうかの簡易判定に使う）
+DIGIT_RE = re.compile(r"[0-9０-９]")
 
-  .load-error {
-    display: none;
-    background: #fdecea;
-    border: 1px solid #c0392b;
-    color: #8a2c20;
-    border-radius: var(--radius);
-    padding: 12px 16px;
-    font-size: 0.85rem;
-    margin-bottom: 18px;
-  }
-  .load-error.show { display: block; }
 
-  footer {
-    text-align: center;
-    padding: 24px 20px 40px;
-    color: var(--color-text-muted);
-    font-size: 0.85rem;
-  }
-</style>
-</head>
-<body>
+def looks_like_price_table(rows: list[list[str]]) -> bool:
+    """数字が1つでも含まれていれば「価格っぽい表」とみなす（記号は問わない）"""
+    for row in rows:
+        for cell in row:
+            if DIGIT_RE.search(cell):
+                return True
+    return False
 
-<header>
-  <div class="eyebrow">PRICE &amp; COURSE</div>
-  <h1>料金・コース案内</h1>
-  <a class="back-link" href="index.html">← トップページに戻る</a>
-</header>
 
-<main>
+def parse_table_grid(table_el):
+    """<tr>を出現順に走査しつつ rowspan/colspan を展開し、
+    すべての行が同じ列数になるような行列（グリッド）を作る。
 
-  <section>
-    <h2>料金・コース案内</h2>
+    公式サイトの料金表は「車種」「所持免許」などのセルが
+    rowspan/colspanで複数行にまたがっているため、単純に
+    <tr>ごとのセルを並べるだけだと、またがっている行のセルが
+    抜け落ちて列がズレてしまう（例：夜間の行だけ車種・所持免許が
+    無くなり、他の列の値になってしまう）。
+    このため、ブラウザが行う表描画と同じロジック
+    （rowspan/colspanを考慮したセル展開）をここでも行う。
+    """
+    trs = table_el.find_all("tr")
+    grid = []
+    pending = {}  # 列インデックス -> [残り行数, 値]（rowspanで持ち越し中のセル）
 
-    <p class="note" style="margin-bottom: 12px;">
-      公式サイトの料金ページを毎週自動で取得し、最新の内容をここに表示しています。正式な金額は
-      <a href="https://www.shotoku-ds.net/guidance/price.html" target="_blank" rel="noopener">公式サイトの料金ページ</a>
-      でも必ずご確認ください。
-    </p>
+    for tr in trs:
+        cells = tr.find_all(["td", "th"])
+        row_out = []
+        col = 0
+        cell_idx = 0
+        while cell_idx < len(cells) or col in pending:
+            if col in pending:
+                remaining, value = pending[col]
+                row_out.append(value)
+                if remaining <= 1:
+                    del pending[col]
+                else:
+                    pending[col] = [remaining - 1, value]
+                col += 1
+                continue
 
-    <div class="restriction-note">
-      ※ 教習希望者の増加により教習枠が逼迫しており、コースによっては受付を制限している時期があります。最新の受付状況は公式サイトまたはお電話でご確認ください。
-    </div>
+            cell = cells[cell_idx]
+            text = cell.get_text(strip=True)
+            try:
+                colspan = int(cell.get("colspan", 1))
+            except (TypeError, ValueError):
+                colspan = 1
+            try:
+                rowspan = int(cell.get("rowspan", 1))
+            except (TypeError, ValueError):
+                rowspan = 1
+            colspan = max(colspan, 1)
+            rowspan = max(rowspan, 1)
 
-    <div class="load-error" id="loadError">
-      料金データの読み込みに失敗しました。お手数ですが、
-      <a href="https://www.shotoku-ds.net/guidance/price.html" target="_blank" rel="noopener">公式サイトの料金ページ</a>
-      を直接ご覧ください。
-    </div>
+            for i in range(colspan):
+                row_out.append(text)
+                if rowspan > 1:
+                    pending[col + i] = [rowspan - 1, text]
+            col += colspan
+            cell_idx += 1
 
-    <div id="priceTables"></div>
+        grid.append(row_out)
 
-    <p class="note">
-      所持免許の種類によって細かく料金が分かれているため、詳しい内訳・全コースの料金は
-      <a href="https://www.shotoku-ds.net/guidance/price.html" target="_blank" rel="noopener">公式サイトの料金ページ</a>
-      をご覧ください。
-    </p>
-  </section>
+    # 念のため、行ごとの列数を最大値にそろえる（本来は揃っているはず）
+    max_cols = max((len(r) for r in grid), default=0)
+    for r in grid:
+        while len(r) < max_cols:
+            r.append("")
 
-  <section>
-    <h2>お問い合わせ</h2>
-    <div class="info-card">
-      <p><strong>聖徳自動車学園</strong></p>
-      <p>お電話：<a href="tel:0583874171">058-387-4171</a></p>
-      <p>公式サイトの料金表：<a href="https://www.shotoku-ds.net/guidance/price.html" target="_blank" rel="noopener">全コース料金一覧はこちら →</a></p>
-    </div>
-  </section>
+    return grid, trs
 
-</main>
 
-<footer>
-  &copy; <span id="year"></span> 聖徳自動車学園
-</footer>
+def extract_tables(html_bytes: bytes):
+    # resp.text ではなく生バイト列を渡し、BeautifulSoup自身に文字コードを
+    # 判定させる（requestsのヘッダーベースの文字コード判定は誤検出しやすいため）。
+    soup = BeautifulSoup(html_bytes, "lxml")
 
-<script>
-  document.getElementById('year').textContent = new Date().getFullYear();
+    all_tables = soup.find_all("table")
+    print(f"[INFO] ページ内の <table> 要素数: {len(all_tables)}", file=sys.stderr)
 
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str == null ? '' : String(str);
-    return div.innerHTML;
-  }
+    # ページ内の見出し(h1-h6)とtableを出現順にまとめて走査し、
+    # 各tableの直前に出てきた見出しをキャプションとして扱う。
+    heading_tags = {"h1", "h2", "h3", "h4", "h5", "h6"}
+    current_caption = ""
+    results = []
+    skipped = 0
 
-  function renderTables(data) {
-    const container = document.getElementById('priceTables');
-    container.innerHTML = '';
+    for el in soup.find_all(list(heading_tags) + ["table"]):
+        if el.name in heading_tags:
+            text = el.get_text(strip=True)
+            if text:
+                current_caption = text
+            continue
 
-    data.tables.forEach(t => {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'table-wrapper';
+        # el.name == "table"
+        grid, trs = parse_table_grid(el)
 
-      const table = document.createElement('table');
+        headers = []
+        table_rows = grid
+        if trs:
+            first_tr_cells = trs[0].find_all(["td", "th"])
+            has_header = bool(first_tr_cells) and all(
+                c.name == "th" for c in first_tr_cells
+            )
+            if has_header and grid:
+                headers = grid[0]
+                table_rows = grid[1:]
 
-      if (t.caption) {
-        const caption = document.createElement('caption');
-        caption.textContent = t.caption;
-        table.appendChild(caption);
-      }
+        # 完全に空の行は除外
+        table_rows = [row for row in table_rows if any(cell.strip() for cell in row)]
 
-      if (t.headers && t.headers.length) {
-        const thead = document.createElement('thead');
-        const tr = document.createElement('tr');
-        t.headers.forEach(h => {
-          const th = document.createElement('th');
-          th.textContent = h;
-          tr.appendChild(th);
-        });
-        thead.appendChild(tr);
-        table.appendChild(thead);
-      }
+        preview = table_rows[0] if table_rows else []
+        print(
+            f"[INFO] table candidate: caption='{current_caption}' "
+            f"headers={headers} rows={len(table_rows)} first_row={preview}",
+            file=sys.stderr,
+        )
 
-      const tbody = document.createElement('tbody');
-      (t.rows || []).forEach(row => {
-        const tr = document.createElement('tr');
-        row.forEach(cell => {
-          const td = document.createElement('td');
-          td.textContent = cell;
-          tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
-      });
-      table.appendChild(tbody);
+        if not table_rows:
+            skipped += 1
+            continue
+        if not looks_like_price_table(table_rows):
+            skipped += 1
+            continue
 
-      wrapper.appendChild(table);
-      container.appendChild(wrapper);
-    });
-  }
+        results.append({
+            "caption": current_caption or "料金表",
+            "headers": headers,
+            "rows": table_rows,
+        })
 
-  fetch('price-data.json', { cache: 'no-store' })
-    .then(res => {
-      if (!res.ok) throw new Error('fetch failed: ' + res.status);
-      return res.json();
-    })
-    .then(data => {
-      renderTables(data);
-    })
-    .catch(err => {
-      console.error(err);
-      document.getElementById('loadError').classList.add('show');
-    });
-</script>
+    print(
+        f"[INFO] 採用: {len(results)} 個 / 除外: {skipped} 個",
+        file=sys.stderr,
+    )
 
-</body>
-</html>
+    return results
+
+
+def main():
+    try:
+        resp = requests.get(
+            SOURCE_URL,
+            timeout=20,
+            headers={"User-Agent": "Mozilla/5.0 (compatible; ShotokuPriceSync/1.0)"},
+        )
+        resp.raise_for_status()
+    except Exception as e:
+        print(f"[ERROR] 公式サイトの取得に失敗しました: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    tables = extract_tables(resp.content)
+
+    # 安全チェック：1個も取れていない場合のみ中止（サイトの完全な構造変化などを想定）。
+    MIN_TABLES = 1
+    if len(tables) < MIN_TABLES:
+        print(
+            f"[ERROR] 料金表が1つも取得できませんでした。"
+            "公式サイトの構造が変わった可能性があるため、更新を中止します。",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    data = {
+        "updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "source_url": SOURCE_URL,
+        "tables": tables,
+    }
+
+    OUTPUT_PATH.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    print(f"[OK] {len(tables)} 個の料金表を price-data.json に書き出しました。")
+
+
+if __name__ == "__main__":
+    main()
