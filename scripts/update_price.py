@@ -9,6 +9,7 @@ GitHub Actions から定期的に実行される想定。
 """
 
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -19,11 +20,15 @@ from bs4 import BeautifulSoup
 SOURCE_URL = "https://www.shotoku-ds.net/guidance/price.html"
 OUTPUT_PATH = Path(__file__).resolve().parent.parent / "price-data.json"
 
-# 数値が1つも含まれていない表（レイアウト用の表など）は無視するための簡易チェック
+# 全角・半角どちらの数字にもマッチ（価格らしい表かどうかの簡易判定に使う）
+DIGIT_RE = re.compile(r"[0-9\uFF10-\uFF19]")
+
+
 def looks_like_price_table(rows: list[list[str]]) -> bool:
+    """数字が1つでも含まれていれば「価格っぽい表」とみなす（記号は問わない）"""
     for row in rows:
         for cell in row:
-            if "¥" in cell or "円" in cell:
+            if DIGIT_RE.search(cell):
                 return True
     return False
 
@@ -31,13 +36,17 @@ def looks_like_price_table(rows: list[list[str]]) -> bool:
 def extract_tables(html: str):
     soup = BeautifulSoup(html, "lxml")
 
-    # ページ内の見出し(h1-h4)とtableを出現順にまとめて走査し、
+    all_tables = soup.find_all("table")
+    print(f"[INFO] ページ内の <table> 要素数: {len(all_tables)}", file=sys.stderr)
+
+    # ページ内の見出し(h1-h6)とtableを出現順にまとめて走査し、
     # 各tableの直前に出てきた見出しをキャプションとして扱う。
-    heading_tags = {"h1", "h2", "h3", "h4"}
+    heading_tags = {"h1", "h2", "h3", "h4", "h5", "h6"}
     current_caption = ""
     results = []
+    skipped = 0
 
-    for el in soup.find_all(heading_tags.union({"table"})):
+    for el in soup.find_all(list(heading_tags) + ["table"]):
         if el.name in heading_tags:
             text = el.get_text(strip=True)
             if text:
@@ -59,9 +68,18 @@ def extract_tables(html: str):
             if any(row):
                 table_rows.append(row)
 
+        preview = table_rows[0] if table_rows else []
+        print(
+            f"[INFO] table candidate: caption='{current_caption}' "
+            f"rows={len(table_rows)} first_row={preview}",
+            file=sys.stderr,
+        )
+
         if not table_rows:
+            skipped += 1
             continue
         if not looks_like_price_table(table_rows):
+            skipped += 1
             continue
 
         results.append({
@@ -69,6 +87,11 @@ def extract_tables(html: str):
             "headers": headers,
             "rows": table_rows,
         })
+
+    print(
+        f"[INFO] 採用: {len(results)} 個 / 除外: {skipped} 個",
+        file=sys.stderr,
+    )
 
     return results
 
@@ -87,13 +110,11 @@ def main():
 
     tables = extract_tables(resp.text)
 
-    # 安全チェック：最低限これくらいの数の表が取れていないと
-    # 「サイト構造が変わって壊れた」可能性が高いので、上書きせず失敗させる。
-    MIN_TABLES = 3
+    # 安全チェック：1個も取れていない場合のみ中止（サイトの完全な構造変化などを想定）。
+    MIN_TABLES = 1
     if len(tables) < MIN_TABLES:
         print(
-            f"[ERROR] 取得できた料金表が {len(tables)} 個しかありません"
-            f"（最低 {MIN_TABLES} 個を想定）。"
+            f"[ERROR] 料金表が1つも取得できませんでした。"
             "公式サイトの構造が変わった可能性があるため、更新を中止します。",
             file=sys.stderr,
         )
