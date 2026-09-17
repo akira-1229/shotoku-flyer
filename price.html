@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 公式サイト（聖徳自動車学園）の料金ページを取得し、
-表(<table>)の中身を price-data.json に書き出すスクリプト。
+表（tableタグ）の中身を price-data.json に書き出すスクリプト。
 
 GitHub Actions から定期的に実行される想定。
 公式サイトの構造が変わって表がうまく取れなかった場合は、
@@ -34,12 +34,12 @@ def looks_like_price_table(rows: list[list[str]]) -> bool:
 
 
 def parse_table_grid(table_el):
-    """<tr>を出現順に走査しつつ rowspan/colspan を展開し、
+    """trタグを出現順に走査しつつ rowspan/colspan を展開し、
     すべての行が同じ列数になるような行列（グリッド）を作る。
 
     公式サイトの料金表は「車種」「所持免許」などのセルが
     rowspan/colspanで複数行にまたがっているため、単純に
-    <tr>ごとのセルを並べるだけだと、またがっている行のセルが
+    trタグごとのセルを並べるだけだと、またがっている行のセルが
     抜け落ちて列がズレてしまう（例：夜間の行だけ車種・所持免許が
     無くなり、他の列の値になってしまう）。
     このため、ブラウザが行う表描画と同じロジック
@@ -102,7 +102,7 @@ def extract_tables(html_bytes: bytes):
     soup = BeautifulSoup(html_bytes, "lxml")
 
     all_tables = soup.find_all("table")
-    print(f"[INFO] ページ内の <table> 要素数: {len(all_tables)}", file=sys.stderr)
+    print(f"[INFO] ページ内のtableタグ数: {len(all_tables)}", file=sys.stderr)
 
     # ページ内の見出し(h1-h6)とtableを出現順にまとめて走査し、
     # 各tableの直前に出てきた見出しをキャプションとして扱う。
