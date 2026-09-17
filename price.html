@@ -128,16 +128,6 @@
     margin-top: 10px;
   }
 
-  .updated-badge {
-    display: inline-block;
-    font-size: 0.78rem;
-    background: #eef4f0;
-    color: var(--color-accent-dark);
-    padding: 4px 12px;
-    border-radius: 999px;
-    margin-bottom: 14px;
-  }
-
   .restriction-note {
     background: #fff4e5;
     border: 1px solid #e8951a;
@@ -180,8 +170,6 @@
 
   <section>
     <h2>料金・コース案内</h2>
-
-    <span class="updated-badge" id="updatedBadge">読み込み中...</span>
 
     <p class="note" style="margin-bottom: 12px;">
       公式サイトの料金ページを毎週自動で取得し、最新の内容をここに表示しています。正式な金額は
@@ -226,17 +214,10 @@
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  function formatUpdatedAt(iso) {
-    try {
-      const d = new Date(iso);
-      const jstFormatter = new Intl.DateTimeFormat('ja-JP', {
-        timeZone: 'Asia/Tokyo',
-        year: 'numeric', month: 'long', day: 'numeric'
-      });
-      return jstFormatter.format(d) + ' 更新';
-    } catch (e) {
-      return '更新日時不明';
-    }
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
   }
 
   function renderTables(data) {
@@ -290,12 +271,10 @@
       return res.json();
     })
     .then(data => {
-      document.getElementById('updatedBadge').textContent = formatUpdatedAt(data.updated_at);
       renderTables(data);
     })
     .catch(err => {
       console.error(err);
-      document.getElementById('updatedBadge').style.display = 'none';
       document.getElementById('loadError').classList.add('show');
     });
 </script>
