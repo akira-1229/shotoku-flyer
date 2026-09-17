@@ -99,7 +99,7 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 480px;
+    min-width: 760px;
   }
   caption {
     text-align: left;
@@ -114,6 +114,13 @@
     border-bottom: 1px solid #eee;
     font-size: 0.88rem;
     white-space: nowrap;
+  }
+  th:first-child, td:first-child {
+    white-space: normal;
+    overflow-wrap: break-word;
+    width: 170px;
+    font-size: 0.76rem;
+    line-height: 1.35;
   }
   th {
     background: var(--color-accent);
