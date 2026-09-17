@@ -193,4 +193,113 @@
   <section>
     <h2>料金・コース案内</h2>
 
-    <p class="note"
+    <p class="note" style="margin-bottom: 12px;">
+      公式サイトの料金ページを毎週自動で取得し、最新の内容をここに表示しています。正式な金額は
+      <a href="https://www.shotoku-ds.net/guidance/price.html" target="_blank" rel="noopener">公式サイトの料金ページ</a>
+      でも必ずご確認ください。
+    </p>
+
+    <div class="restriction-note">
+      ※ 教習希望者の増加により教習枠が逼迫しており、コースによっては受付を制限している時期があります。最新の受付状況は公式サイトまたはお電話でご確認ください。
+    </div>
+
+    <div class="load-error" id="loadError">
+      料金データの読み込みに失敗しました。お手数ですが、
+      <a href="https://www.shotoku-ds.net/guidance/price.html" target="_blank" rel="noopener">公式サイトの料金ページ</a>
+      を直接ご覧ください。
+    </div>
+
+    <div id="priceTables"></div>
+
+    <p class="note">
+      所持免許の種類によって細かく料金が分かれているため、詳しい内訳・全コースの料金は
+      <a href="https://www.shotoku-ds.net/guidance/price.html" target="_blank" rel="noopener">公式サイトの料金ページ</a>
+      をご覧ください。
+    </p>
+  </section>
+
+  <section>
+    <h2>お問い合わせ</h2>
+    <div class="info-card">
+      <p><strong>聖徳自動車学園</strong></p>
+      <p>お電話：<a href="tel:0583874171">058-387-4171</a></p>
+      <p>公式サイトの料金表：<a href="https://www.shotoku-ds.net/guidance/price.html" target="_blank" rel="noopener">全コース料金一覧はこちら →</a></p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  &copy; <span id="year"></span> 聖徳自動車学園
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  function renderTables(data) {
+    const container = document.getElementById('priceTables');
+    container.innerHTML = '';
+
+    data.tables.forEach(t => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'table-wrapper';
+
+      const table = document.createElement('table');
+
+      if (t.caption) {
+        const caption = document.createElement('caption');
+        caption.textContent = t.caption;
+        table.appendChild(caption);
+      }
+
+      if (t.headers && t.headers.length) {
+        const thead = document.createElement('thead');
+        const tr = document.createElement('tr');
+        t.headers.forEach(h => {
+          const th = document.createElement('th');
+          th.textContent = h;
+          tr.appendChild(th);
+        });
+        thead.appendChild(tr);
+        table.appendChild(thead);
+      }
+
+      const tbody = document.createElement('tbody');
+      (t.rows || []).forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach(cell => {
+          const td = document.createElement('td');
+          td.textContent = cell;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+
+      wrapper.appendChild(table);
+      container.appendChild(wrapper);
+    });
+  }
+
+  fetch('price-data.json', { cache: 'no-store' })
+    .then(res => {
+      if (!res.ok) throw new Error('fetch failed: ' + res.status);
+      return res.json();
+    })
+    .then(data => {
+      renderTables(data);
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById('loadError').classList.add('show');
+    });
+</script>
+
+</body>
+</html>
