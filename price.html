@@ -38,20 +38,13 @@
     text-size-adjust: 100%;
   }
   header {
-    background: #fff;
-    color: var(--color-text);
-    border-bottom: 1px solid #e5e5e5;
-    padding: 36px 20px 32px;
+    background:
+      linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+      url('images/header.JPG') center/cover no-repeat;
+    color: #fff;
+    padding: 56px 20px 46px;
     text-align: center;
   }
-  header .logo {
-    display: block;
-    width: 90%;
-    max-width: 560px;
-    height: auto;
-    margin: 0 auto 20px;
-  }
-
   header .eyebrow {
     font-size: 0.85rem;
     letter-spacing: 0.15em;
@@ -66,11 +59,11 @@
   .back-link {
     display: inline-block;
     margin-top: 16px;
-    color: var(--color-text);
+    color: #fff;
     opacity: 0.9;
     font-size: 0.9rem;
     text-decoration: none;
-    border-bottom: 1px solid rgba(0,0,0,0.4);
+    border-bottom: 1px solid rgba(255,255,255,0.6);
   }
   main {
     max-width: var(--max-width);
@@ -190,7 +183,6 @@
 <body>
 
 <header>
-  <img class="logo" src="images/logo.png" alt="聖徳自動車学園">
   <div class="eyebrow">PRICE &amp; COURSE</div>
   <h1>料金・コース案内</h1>
   <a class="back-link" href="index.html">← トップページに戻る</a>
