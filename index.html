@@ -38,19 +38,25 @@
   }
 
   header {
-    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.75);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
     color: var(--color-text);
-    border-bottom: 1px solid #e5e5e5;
-    padding: 28px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 14px 20px;
     text-align: center;
   }
 
   header .logo {
     display: block;
     width: 90%;
-    max-width: 560px;
+    max-width: 400px;
     height: auto;
     margin: 0 auto;
+    opacity: 0.85;
   }
 
   header h1 {
@@ -124,7 +130,7 @@
       width: 200px;
       flex-shrink: 0;
       position: sticky;
-      top: 20px;
+      top: 110px;
     }
   }
 
