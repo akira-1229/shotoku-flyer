@@ -38,12 +38,19 @@
   }
 
   header {
-    background:
-      linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
-      url('images/header.JPG') center/cover no-repeat;
-    color: #fff;
-    padding: 70px 20px 60px;
+    background: #fff;
+    color: var(--color-text);
+    border-bottom: 1px solid #e5e5e5;
+    padding: 40px 20px 36px;
     text-align: center;
+  }
+
+  header .logo {
+    display: block;
+    width: 90%;
+    max-width: 560px;
+    height: auto;
+    margin: 0 auto 20px;
   }
 
   header .eyebrow {
@@ -253,6 +260,7 @@
 <body>
 
 <header>
+  <img class="logo" src="images/logo.png" alt="聖徳自動車学園">
   <div class="eyebrow">SCHOOL INTRODUCTION</div>
   <h1>聖徳自動車学園</h1>
   <p>パンフレットのQRコードからお越しいただき<br>ありがとうございます。</p>
