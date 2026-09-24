@@ -91,11 +91,11 @@
     height: 3px;
     border-radius: 2px;
     background: #fff;
-    transition: transform 0.25s ease, top 0.25s ease;
+    transition: transform 0.25s ease, top 0.25s ease, width 0.25s ease;
   }
 
   .menu-toggle span:nth-child(1) { top: 21px; }
-  .menu-toggle span:nth-child(2) { top: 32px; }
+  .menu-toggle span:nth-child(2) { top: 32px; width: 22.4px; }
 
   .menu-toggle[aria-expanded="true"] span:nth-child(1) {
     top: 26.5px;
@@ -104,6 +104,7 @@
 
   .menu-toggle[aria-expanded="true"] span:nth-child(2) {
     top: 26.5px;
+    width: 28px;
     transform: rotate(-45deg);
   }
 
