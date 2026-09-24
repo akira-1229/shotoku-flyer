@@ -52,10 +52,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    max-width: 1040px;
-    margin: 0 auto;
-    padding: 10px 0 10px 20px;
+    gap: 16px;
+    padding-left: 16px;
   }
 
   header h1 {
@@ -67,18 +65,17 @@
   header .logo {
     display: block;
     width: 100%;
-    max-width: 340px;
+    max-width: 360px;
     height: auto;
     opacity: 0.7;
   }
 
   .menu-toggle {
     flex-shrink: 0;
-    width: 56px;
-    height: 56px;
-    margin-right: 12px;
+    width: 72px;
+    height: 72px;
     border: none;
-    border-radius: 6px;
+    border-radius: 0;
     background: #3a86e0;
     cursor: pointer;
     position: relative;
@@ -86,25 +83,25 @@
 
   .menu-toggle span {
     position: absolute;
-    left: 14px;
-    width: 28px;
+    left: 18px;
+    width: 36px;
     height: 3px;
     border-radius: 2px;
     background: #fff;
     transition: transform 0.25s ease, top 0.25s ease, width 0.25s ease;
   }
 
-  .menu-toggle span:nth-child(1) { top: 21px; }
-  .menu-toggle span:nth-child(2) { top: 32px; width: 22.4px; }
+  .menu-toggle span:nth-child(1) { top: 27px; }
+  .menu-toggle span:nth-child(2) { top: 42px; width: 28.8px; }
 
   .menu-toggle[aria-expanded="true"] span:nth-child(1) {
-    top: 26.5px;
+    top: 34.5px;
     transform: rotate(45deg);
   }
 
   .menu-toggle[aria-expanded="true"] span:nth-child(2) {
-    top: 26.5px;
-    width: 28px;
+    top: 34.5px;
+    width: 36px;
     transform: rotate(-45deg);
   }
 
