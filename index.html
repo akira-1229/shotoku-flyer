@@ -46,21 +46,104 @@
     backdrop-filter: blur(6px);
     color: var(--color-text);
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    padding: 14px 20px;
-    text-align: center;
   }
 
-  header .logo {
-    display: block;
-    width: 90%;
-    max-width: 400px;
-    height: auto;
+  .header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: 1040px;
     margin: 0 auto;
-    opacity: 0.7;
+    padding: 10px 0 10px 20px;
   }
 
   header h1 {
     margin: 0;
+    flex: 1;
+    min-width: 0;
+  }
+
+  header .logo {
+    display: block;
+    width: 100%;
+    max-width: 340px;
+    height: auto;
+    opacity: 0.7;
+  }
+
+  .menu-toggle {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    margin-right: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #3a86e0;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .menu-toggle span {
+    position: absolute;
+    left: 14px;
+    width: 28px;
+    height: 3px;
+    border-radius: 2px;
+    background: #fff;
+    transition: transform 0.25s ease, top 0.25s ease;
+  }
+
+  .menu-toggle span:nth-child(1) { top: 21px; }
+  .menu-toggle span:nth-child(2) { top: 32px; }
+
+  .menu-toggle[aria-expanded="true"] span:nth-child(1) {
+    top: 26.5px;
+    transform: rotate(45deg);
+  }
+
+  .menu-toggle[aria-expanded="true"] span:nth-child(2) {
+    top: 26.5px;
+    transform: rotate(-45deg);
+  }
+
+  .global-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    max-height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transition: max-height 0.3s ease, visibility 0.3s;
+  }
+
+  .global-menu.open {
+    max-height: 400px;
+    visibility: visible;
+  }
+
+  .global-menu ul {
+    list-style: none;
+    margin: 0 auto;
+    padding: 8px 20px 16px;
+    max-width: 1040px;
+  }
+
+  .global-menu a {
+    display: block;
+    padding: 16px 4px;
+    border-bottom: 1px solid #e5e5e5;
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .global-menu a:hover,
+  .global-menu a.active {
+    color: #3a86e0;
   }
 
   .page-layout {
@@ -130,7 +213,7 @@
       width: 200px;
       flex-shrink: 0;
       position: sticky;
-      top: 110px;
+      top: 96px;
     }
   }
 
@@ -251,7 +334,19 @@
 <body>
 
 <header>
-  <h1><img class="logo" src="images/logo.png" alt="聖徳自動車学園"></h1>
+  <div class="header-bar">
+    <h1><img class="logo" src="images/logo.png" alt="聖徳自動車学園"></h1>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="メニューを開く" aria-expanded="false" aria-controls="globalMenu">
+      <span></span><span></span>
+    </button>
+  </div>
+  <nav class="global-menu" id="globalMenu" aria-label="メニュー">
+    <ul>
+      <li><a href="index.html" class="active">トップページ</a></li>
+      <li><a href="https://www.shotoku-ds.net/guidance/price.html" target="_blank" rel="noopener">料金案内（公式ページへ飛びます）</a></li>
+      <li><a href="https://www.shotoku-ds.net/about/access.html" target="_blank" rel="noopener">送迎バス・アクセス案内（公式ページへ飛びます）</a></li>
+    </ul>
+  </nav>
 </header>
 
 <div class="page-layout">
@@ -354,6 +449,25 @@
 </footer>
 
 <script>
+  const menuToggle = document.getElementById('menuToggle');
+  const globalMenu = document.getElementById('globalMenu');
+
+  function setMenu(open) {
+    menuToggle.setAttribute('aria-expanded', open);
+    menuToggle.setAttribute('aria-label', open ? 'メニューを閉じる' : 'メニューを開く');
+    globalMenu.classList.toggle('open', open);
+  }
+
+  menuToggle.addEventListener('click', () => {
+    setMenu(menuToggle.getAttribute('aria-expanded') !== 'true');
+  });
+  globalMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => setMenu(false));
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') setMenu(false);
+  });
+
   document.getElementById('year').textContent = new Date().getFullYear();
 
   const galleryImgs = document.querySelectorAll('.gallery img');
