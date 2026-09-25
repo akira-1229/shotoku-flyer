@@ -27,6 +27,10 @@
 
   * { box-sizing: border-box; }
 
+  html, body {
+    overscroll-behavior-y: contain;
+  }
+
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", sans-serif;
@@ -142,6 +146,45 @@
   .global-menu a:hover,
   .global-menu a.active {
     color: #3a86e0;
+  }
+
+  .ptr {
+    position: fixed;
+    top: 72px;
+    left: 50%;
+    z-index: 90;
+    width: 40px;
+    height: 40px;
+    margin-left: -20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(-50px);
+    pointer-events: none;
+  }
+
+  .ptr.releasing {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .ptr-icon {
+    width: 22px;
+    height: 22px;
+    border: 3px solid #3a86e0;
+    border-top-color: transparent;
+    border-radius: 50%;
+  }
+
+  .ptr.loading .ptr-icon {
+    animation: ptr-spin 0.8s linear infinite;
+  }
+
+  @keyframes ptr-spin {
+    to { transform: rotate(360deg); }
   }
 
   .page-layout {
@@ -290,6 +333,8 @@
   </nav>
 </header>
 
+<div class="ptr" id="ptr" aria-hidden="true"><div class="ptr-icon" id="ptrIcon"></div></div>
+
 <div class="page-layout">
 
   <main>
@@ -417,6 +462,49 @@
   lightbox.addEventListener('click', () => {
     lightbox.classList.remove('active');
     lightboxImg.src = '';
+  });
+
+  // 下にスワイプして更新（引っ張って離すと再読み込み）
+  const ptr = document.getElementById('ptr');
+  const ptrIcon = document.getElementById('ptrIcon');
+  const PTR_THRESHOLD = 70;
+  let ptrStartY = null;
+  let ptrPull = 0;
+
+  function drawPtr() {
+    ptr.style.opacity = Math.min(ptrPull / PTR_THRESHOLD, 1);
+    ptr.style.transform = `translateY(${ptrPull - 50}px)`;
+    ptrIcon.style.transform = `rotate(${ptrPull * 4}deg)`;
+  }
+
+  document.addEventListener('touchstart', e => {
+    const busy = globalMenu.classList.contains('open') || lightbox.classList.contains('active');
+    ptrStartY = (window.scrollY <= 0 && !busy && e.touches.length === 1) ? e.touches[0].clientY : null;
+    ptrPull = 0;
+    ptr.classList.remove('releasing');
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    if (ptrStartY === null) return;
+    if (window.scrollY > 0) { ptrStartY = null; ptrPull = 0; drawPtr(); return; }
+    ptrPull = Math.max(0, Math.min((e.touches[0].clientY - ptrStartY) * 0.5, 100));
+    drawPtr();
+  }, { passive: true });
+
+  document.addEventListener('touchend', () => {
+    if (ptrStartY === null) return;
+    ptrStartY = null;
+    ptr.classList.add('releasing');
+    if (ptrPull >= PTR_THRESHOLD) {
+      ptrPull = PTR_THRESHOLD;
+      drawPtr();
+      ptrIcon.style.transform = '';
+      ptr.classList.add('loading');
+      location.reload();
+    } else {
+      ptrPull = 0;
+      drawPtr();
+    }
   });
 </script>
 
