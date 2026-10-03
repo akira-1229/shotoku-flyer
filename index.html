@@ -150,20 +150,13 @@
 
   .ptr {
     position: fixed;
-    top: 72px;
+    top: 80px;
     left: 50%;
     z-index: 90;
-    width: 40px;
-    height: 40px;
-    margin-left: -20px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 32px;
+    margin-left: -16px;
     opacity: 0;
-    transform: translateY(-50px);
+    transform: translateY(-10px);
     pointer-events: none;
   }
 
@@ -173,12 +166,16 @@
 
   .ptr-icon {
     display: block;
-    width: 22px;
+    width: 32px;
     height: auto;
   }
 
+  .ptr.pulling .ptr-icon {
+    animation: ptr-spin 1s linear infinite;
+  }
+
   .ptr.loading .ptr-icon {
-    animation: ptr-spin 0.8s linear infinite;
+    animation-duration: 0.6s;
   }
 
   @keyframes ptr-spin {
@@ -331,7 +328,7 @@
   </nav>
 </header>
 
-<div class="ptr" id="ptr" aria-hidden="true"><img class="ptr-icon" id="ptrIcon" src="images/logo-mark.png" alt=""></div>
+<div class="ptr" id="ptr" aria-hidden="true"><img class="ptr-icon" src="images/logo-mark.png" alt=""></div>
 
 <div class="page-layout">
 
@@ -462,20 +459,20 @@
     lightboxImg.src = '';
   });
 
-  // 下にスワイプして更新（引っ張って離すと再読み込み）
+  // 下にスワイプして更新（引っ張り始めるとマークが回り、離すと再読み込み）
   const ptr = document.getElementById('ptr');
-  const ptrIcon = document.getElementById('ptrIcon');
-  const PTR_THRESHOLD = 70;
+  const PTR_THRESHOLD = 60;
   let ptrStartY = null;
   let ptrPull = 0;
 
   function drawPtr() {
-    ptr.style.opacity = Math.min(ptrPull / PTR_THRESHOLD, 1);
-    ptr.style.transform = `translateY(${ptrPull - 50}px)`;
-    ptrIcon.style.transform = `rotate(${ptrPull * 4}deg)`;
+    ptr.style.opacity = Math.min(ptrPull / 15, 1);
+    ptr.style.transform = `translateY(${Math.min(ptrPull, PTR_THRESHOLD) * 0.5 - 10}px)`;
+    ptr.classList.toggle('pulling', ptrPull > 0);
   }
 
   document.addEventListener('touchstart', e => {
+    if (ptr.classList.contains('loading')) return;
     const busy = globalMenu.classList.contains('open') || lightbox.classList.contains('active');
     ptrStartY = (window.scrollY <= 0 && !busy && e.touches.length === 1) ? e.touches[0].clientY : null;
     ptrPull = 0;
@@ -485,7 +482,7 @@
   document.addEventListener('touchmove', e => {
     if (ptrStartY === null) return;
     if (window.scrollY > 0) { ptrStartY = null; ptrPull = 0; drawPtr(); return; }
-    ptrPull = Math.max(0, Math.min((e.touches[0].clientY - ptrStartY) * 0.5, 100));
+    ptrPull = Math.max(0, Math.min((e.touches[0].clientY - ptrStartY) * 0.6, 100));
     drawPtr();
   }, { passive: true });
 
@@ -496,9 +493,8 @@
     if (ptrPull >= PTR_THRESHOLD) {
       ptrPull = PTR_THRESHOLD;
       drawPtr();
-      ptrIcon.style.transform = '';
       ptr.classList.add('loading');
-      location.reload();
+      setTimeout(() => location.reload(), 600);
     } else {
       ptrPull = 0;
       drawPtr();
