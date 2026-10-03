@@ -150,17 +150,26 @@
 
   .ptr {
     position: fixed;
-    top: 80px;
+    top: 0;
     left: 50%;
     z-index: 90;
     width: 32px;
     margin-left: -16px;
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-32px);
     pointer-events: none;
   }
 
-  .ptr.releasing {
+  body.ptr-active header,
+  body.ptr-active .page-layout,
+  body.ptr-active footer {
+    transform: translateY(var(--ptr-offset, 0px));
+  }
+
+  body.ptr-releasing header,
+  body.ptr-releasing .page-layout,
+  body.ptr-releasing footer,
+  body.ptr-releasing .ptr {
     transition: transform 0.2s ease, opacity 0.2s ease;
   }
 
@@ -466,8 +475,12 @@
   let ptrPull = 0;
 
   function drawPtr() {
-    ptr.style.opacity = Math.min(ptrPull / 15, 1);
-    ptr.style.transform = `translateY(${Math.min(ptrPull, PTR_THRESHOLD) * 0.5 - 10}px)`;
+    // ページ全体を引っ張った分だけ下げ、空いたヘッダーの上の隙間でマークを回す
+    const offset = Math.min(ptrPull, PTR_THRESHOLD + 20);
+    document.body.style.setProperty('--ptr-offset', `${offset}px`);
+    document.body.classList.toggle('ptr-active', ptrPull > 0);
+    ptr.style.opacity = Math.min(ptrPull / 30, 1);
+    ptr.style.transform = `translateY(${(offset - 32) / 2}px)`;
     ptr.classList.toggle('pulling', ptrPull > 0);
   }
 
@@ -476,7 +489,7 @@
     const busy = globalMenu.classList.contains('open') || lightbox.classList.contains('active');
     ptrStartY = (window.scrollY <= 0 && !busy && e.touches.length === 1) ? e.touches[0].clientY : null;
     ptrPull = 0;
-    ptr.classList.remove('releasing');
+    document.body.classList.remove('ptr-releasing');
   }, { passive: true });
 
   document.addEventListener('touchmove', e => {
@@ -489,7 +502,7 @@
   document.addEventListener('touchend', () => {
     if (ptrStartY === null) return;
     ptrStartY = null;
-    ptr.classList.add('releasing');
+    document.body.classList.add('ptr-releasing');
     if (ptrPull >= PTR_THRESHOLD) {
       ptrPull = PTR_THRESHOLD;
       drawPtr();
