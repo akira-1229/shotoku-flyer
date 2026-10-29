@@ -294,6 +294,20 @@
     .banner-thumb { width: 110px; }
   }
 
+  /* スマホでは広告を画面の横幅いっぱいに表示 */
+  @media (max-width: 699px) {
+    .banner {
+      margin: -16px -20px 40px;
+    }
+    .banner-stage {
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .banner-thumbs {
+      padding: 0 20px 4px;
+    }
+  }
+
   section h2 {
     font-size: 1.2rem;
     margin: 0 0 16px;
