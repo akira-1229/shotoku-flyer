@@ -209,6 +209,91 @@
     margin-bottom: 40px;
   }
 
+  section[id] {
+    scroll-margin-top: 90px;
+  }
+
+  .coming-soon {
+    margin: 0;
+    padding: 28px 16px;
+    text-align: center;
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    color: var(--color-text-muted);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+
+  /* ===== 広告バナー（自動で切り替わるスライド） ===== */
+  .banner-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 1;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #e5e0d8;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  }
+
+  .banner-slide {
+    position: absolute;
+    inset: 0;
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.6s ease, visibility 0.6s;
+  }
+
+  .banner-slide.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .banner-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .banner-thumbs {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .banner-thumb {
+    flex: 0 0 auto;
+    width: 84px;
+    aspect-ratio: 3 / 1;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #e5e0d8;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s, border-color 0.2s;
+  }
+
+  .banner-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .banner-thumb.active {
+    border-color: #3a86e0;
+    opacity: 1;
+  }
+
+  @media (min-width: 700px) {
+    .banner-thumb { width: 110px; }
+  }
+
   section h2 {
     font-size: 1.2rem;
     margin: 0 0 16px;
@@ -331,6 +416,8 @@
   <nav class="global-menu" id="globalMenu" aria-label="メニュー">
     <ul>
       <li><a href="index.html" class="active">トップページ</a></li>
+      <li><a href="#video">学園紹介動画</a></li>
+      <li><a href="#photos">写真で見る学園生活</a></li>
       <li><a href="https://www.shotoku-ds.net/guidance/price.html" target="_blank" rel="noopener">料金案内（公式ページへ飛びます）</a></li>
       <li><a href="https://www.shotoku-ds.net/about/access.html" target="_blank" rel="noopener">送迎バス・アクセス案内（公式ページへ飛びます）</a></li>
     </ul>
@@ -343,7 +430,32 @@
 
   <main>
 
-    <section>
+    <section class="banner" id="banner" aria-label="お知らせ" hidden>
+      <div class="banner-stage" id="bannerStage"></div>
+      <div class="banner-thumbs" id="bannerThumbs"></div>
+    </section>
+
+    <section id="video">
+      <h2>学園紹介動画</h2>
+      <!--
+        動画の準備ができたら、下の「準備中」の行を消して、iframe のコメントを外してください。
+        例）動画URLが https://www.youtube.com/watch?v=ABC123xyz なら
+        埋め込みURLは https://www.youtube.com/embed/ABC123xyz になります。
+      -->
+      <p class="coming-soon">学園紹介動画は準備中です。公開まで今しばらくお待ちください。</p>
+      <!--
+      <div class="video-wrapper">
+        <iframe
+          src="https://www.youtube.com/embed/YOUTUBE_VIDEO_ID"
+          title="学園紹介動画"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+      -->
+    </section>
+
+    <section id="photos">
       <h2>写真で見る学園生活</h2>
       <div class="gallery">
         <figure>
@@ -384,27 +496,6 @@
         </figure>
       </div>
     </section>
-
-    <!--
-      ▼▼ 動画の準備ができたら、この2行（開始・終了コメント）を削除して有効化してください ▼▼
-
-    <section>
-      <h2>紹介動画</h2>
-      <div class="video-wrapper">
-        ここにYouTubeの動画IDを入れます。
-        例）動画URLが https://www.youtube.com/watch?v=ABC123xyz なら
-        埋め込みURLは https://www.youtube.com/embed/ABC123xyz になります。
-        <iframe
-          src="https://www.youtube.com/embed/YOUTUBE_VIDEO_ID"
-          title="学校紹介動画"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen>
-        </iframe>
-      </div>
-    </section>
-
-    ▲▲ ここまでがコメントアウトされた動画セクションです ▲▲
-    -->
 
     <section>
       <h2>学校について</h2>
@@ -467,6 +558,74 @@
     lightbox.classList.remove('active');
     lightboxImg.src = '';
   });
+
+  // ===== 広告バナー =====
+  // 広告を追加・差し替えるときは、この一覧を書き換えてください。
+  //   image: images フォルダに置いた画像（横3：縦1、例 1200×400 がおすすめ）
+  //   link : 画像を押したときに開くページ（なければ '' のまま）
+  //   alt  : 広告の内容を短く（画像が出ないときや読み上げ用）
+  const BANNERS = [
+    { image: 'images/banner-sample1.jpg', link: '', alt: '学園の外観' },
+    { image: 'images/banner-sample2.jpg', link: '', alt: '3階休憩所' },
+    { image: 'images/banner-sample3.jpg', link: '', alt: '実習室' },
+  ];
+  const BANNER_INTERVAL = 5000; // 切り替わるまでの時間（ミリ秒）
+
+  (function setupBanner() {
+    if (!BANNERS.length) return;
+    const banner = document.getElementById('banner');
+    const stage = document.getElementById('bannerStage');
+    const thumbs = document.getElementById('bannerThumbs');
+    const slides = [];
+    const buttons = [];
+    let current = 0;
+    let timer = null;
+
+    BANNERS.forEach((b, i) => {
+      const slide = document.createElement(b.link ? 'a' : 'div');
+      slide.className = 'banner-slide';
+      if (b.link) {
+        slide.href = b.link;
+        slide.target = '_blank';
+        slide.rel = 'noopener';
+      }
+      const img = document.createElement('img');
+      img.src = b.image;
+      img.alt = b.alt;
+      slide.appendChild(img);
+      stage.appendChild(slide);
+      slides.push(slide);
+
+      if (BANNERS.length > 1) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'banner-thumb';
+        btn.setAttribute('aria-label', `${i + 1}枚目を表示：${b.alt}`);
+        const timg = document.createElement('img');
+        timg.src = b.image;
+        timg.alt = '';
+        btn.appendChild(timg);
+        btn.addEventListener('click', () => { show(i); restart(); });
+        thumbs.appendChild(btn);
+        buttons.push(btn);
+      }
+    });
+
+    function show(i) {
+      current = (i + BANNERS.length) % BANNERS.length;
+      slides.forEach((s, j) => s.classList.toggle('active', j === current));
+      buttons.forEach((b, j) => b.classList.toggle('active', j === current));
+    }
+
+    function restart() {
+      clearInterval(timer);
+      if (BANNERS.length > 1) timer = setInterval(() => show(current + 1), BANNER_INTERVAL);
+    }
+
+    show(0);
+    restart();
+    banner.hidden = false;
+  })();
 
   // 下にスワイプして更新（引っ張り始めるとマークが回り、離すと再読み込み）
   const ptr = document.getElementById('ptr');
